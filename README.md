@@ -15,6 +15,6 @@ Modifies YSFlight addon packs to work with Mac, Linux and Windows platforms.
      - Open the python file with IDLE
      - Press F5 to run the code.
 4. Resolve any issues that the code alerted you to that it could not resolve itself. 
-   - For example some files may contain non-unicode text. In this situation, open the indicated file and delete any lines or characters that do not appear odd.
+   - For example some files may contain non-unicode text. In this situation, open the indicated file and delete any lines or characters that appear odd.
    - Re-run the code to process these remaining files.
 5.  Copy converted addons to your YSFlight Directory.    
