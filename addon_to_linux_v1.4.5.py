@@ -5,10 +5,10 @@
 __author__      = "Decaff_42"
 __copyright__   = "Copyright 2021, Decaff_42"
 __license__     = "CC BY-NC-SA"
-__version__     = "1.4.4"
+__version__     = "1.4.5"
 __maintainer__  = "Decaff_42"
 __status__      = "Production"
-__date__        = "17 August 2021"
+__date__        = "18 August 2021"
 
 """
 Instructions:
@@ -53,6 +53,7 @@ Version History
 1.4.3 - Updates .fld file processing to ignore internal PCK elements from the path
         updating for the FIL lines.
 1.4.4 - Fixed issue with DAT CARRIER (acp) paths losing the first character in the path
+1.4.5 - Updated DNM processing to ignore internally-defined SURFs
 """
 
 # Import python modules
@@ -189,14 +190,31 @@ def convert_string_path(path):
 
 def process_dnm_file(filepath):
     raw_file = import_text_file(filepath)
-
+    
     if len(raw_file) > 0:
-        for row, line in enumerate(raw_file):
-            if ("/" in line or "\\" in line) and line.startswith("FIL"):
-                path = line[4:]
-                path = convert_string_path(path)
+        # Identify internally defined elements.
+        pck_names = list()
+        for line in raw_file:
+            if line.startswith("PCK"):
+                # Unknown if spaces can exist in the PCK name, so we will make the name
+                # extraction so it doesn't matter. We know that the length of the 
+                parts = line.split()
+                if len(parts) > 3:
+                    num_length_characters = -1*(len(parts[-1]) + 2)
+                    name = line[4:1 + num_length_characters]
+                else:
+                    name = parts[1]
+                
+                pck_names.append(name)
 
-                raw_file[row] = "FIL " + path
+        # Process the SRF FIL lines.
+        for row, line in enumerate(raw_file):
+            if line.startswith("FIL"):
+                # Figure out if the rest of the line is in the PCK name list
+                name = line[4:]
+                if name not in pck_names:
+                    path = convert_string_path(name)
+                    raw_file[row] = "FIL " + path
 
         write_text_file(raw_file, filepath)
     
